@@ -13,11 +13,11 @@ cat > /root/realm.toml << EOF
 no_tcp = false
 use_udp = true
 [[endpoints]]
-listen = "0.0.0.0:23456"
-remote = "\$ip1:\$port1"
+listen = "0.0.0.0:$port1"
+remote = "$ip1:$port1"
 [[endpoints]]
-listen = "0.0.0.0:54321"
-remote = "\$ip2:\$port2"
+listen = "0.0.0.0:$port2"
+remote = "$ip2:$port2"
 EOF
 cat > /etc/systemd/system/realm.service << EOF
 [Unit]
