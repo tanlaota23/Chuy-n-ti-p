@@ -2,42 +2,42 @@
 # Script tự động cài đặt và cấu hình realm với số endpoint tùy chọn
 
 # Tải và cấp quyền thực thi
-wget https://gg.amproxy.shop/realm
-chmod +x realm
+wget -O /root/realm https://gg.amproxy.shop/realm
+chmod +x /root/realm
 
 # Hỏi số lượng endpoint
-echo "Bạn muốn cài đặt bao nhiêu endpoint (chuyển tiếp)?"
-read -p "Nhập số lượng: " num_endpoints
+read -p "Bạn muốn cài đặt bao nhiêu endpoint (chuyển tiếp)? " num_endpoints
 
 # Kiểm tra nếu num_endpoints là số hợp lệ
-case $num_endpoints in
-    ''|*[!0-9]*|0)
-        echo "Lỗi: Vui lòng nhập một số nguyên dương lớn hơn 0!"
-        exit 1
-        ;;
-    *)
-        ;;
-esac
+if ! [[ "$num_endpoints" =~ ^[0-9]+$ ]] || [ "$num_endpoints" -le 0 ]; then
+    echo "Lỗi: Vui lòng nhập một số nguyên dương lớn hơn 0!"
+    exit 1
+fi
 
 # Tạo file realm.toml
-echo "[network]" > /root/realm.toml
-echo "no_tcp = false" >> /root/realm.toml
-echo "use_udp = true" >> /root/realm.toml
+cat > /root/realm.toml << EOF
+[network]
+no_tcp = false
+use_udp = true
+EOF
 
 # Lặp để hỏi IP và port cho từng endpoint
 for i in $(seq 1 $num_endpoints); do
     echo "Cấu hình endpoint thứ $i:"
     read -p "Nhập IP chuyển tiếp: " ip
     read -p "Nhập port chuyển tiếp: " port
-    echo "[[endpoints]]" >> /root/realm.toml
-    echo "listen = \"0.0.0.0:$port\"" >> /root/realm.toml
-    echo "remote = \"`\(ip:\)`port\"" >> /root/realm.toml
+    cat >> /root/realm.toml << EOF
+
+[[endpoints]]
+listen = "0.0.0.0:$port"
+remote = "$ip:$port"
+EOF
 done
 
 # Tạo file service
 cat > /etc/systemd/system/realm.service << EOF
 [Unit]
-Description=realm
+Description=Realm Forwarding Service
 After=network-online.target
 Wants=network-online.target systemd-networkd-wait-online.service
 
@@ -46,7 +46,6 @@ Type=simple
 User=root
 Restart=on-failure
 RestartSec=5s
-DynamicUser=true
 ExecStart=/root/realm -c /root/realm.toml
 
 [Install]
@@ -55,7 +54,8 @@ EOF
 
 # Cấu hình và khởi động service
 systemctl daemon-reload
-systemctl enable realm && systemctl start realm
+systemctl enable realm
+systemctl restart realm
 
-echo "Đã hoàn tất cài đặt và khởi động realm với $num_endpoints endpoint!"
-echo "Để kiểm tra trạng thái, dùng: systemctl status realm"
+echo "✅ Đã hoàn tất cài đặt và khởi động realm với $num_endpoints endpoint!"
+echo "🔍 Để kiểm tra trạng thái, chạy: systemctl status realm"
