@@ -1,18 +1,17 @@
-
 #!/bin/bash
 
 while true; do
     clear
-    echo "========================="
-    echo "   Quản lý Realm Proxy   "
-    echo "========================="
+    echo "============================"
+    echo "       Quản lý Realm Proxy"
+    echo "============================"
     echo "1. Cài đặt chuyển tiếp"
     echo "2. Reload dịch vụ"
     echo "3. Bật và khởi động dịch vụ"
     echo "4. Khởi động lại dịch vụ"
     echo "5. Kiểm tra trạng thái dịch vụ"
-    echo "0. Thoát"
-    echo "========================="
+    echo "0. Quay lại menu chính"
+    echo "============================"
     read -p "Chọn một tùy chọn: " choice
 
     case "$choice" in
@@ -40,12 +39,13 @@ while true; do
             read -p "Nhấn Enter để tiếp tục..."
             ;;
         0)
-            echo "Thoát chương trình!"
-            exit 0
+            echo "Quay lại menu chính..."
+            sleep 1
+            continue
             ;;
         *)
-            echo "Lựa chọn không hợp lệ!"
-            read -p "Nhấn Enter để tiếp tục..."
+            echo "Lựa chọn không hợp lệ! Vui lòng nhập lại."
+            sleep 1
             ;;
     esac
 done
