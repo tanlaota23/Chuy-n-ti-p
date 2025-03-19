@@ -10,10 +10,14 @@ echo "Bạn muốn cài đặt bao nhiêu endpoint (chuyển tiếp)?"
 read -p "Nhập số lượng: " num_endpoints
 
 # Kiểm tra nếu num_endpoints là số hợp lệ
-if ! [[ "`\(num_endpoints" =~ ^[0-9]+\)` ]] || [ "$num_endpoints" -le 0 ]; then
-    echo "Lỗi: Vui lòng nhập một số nguyên dương lớn hơn 0!"
-    exit 1
-fi
+case $num_endpoints in
+    ''|*[!0-9]*|0)
+        echo "Lỗi: Vui lòng nhập một số nguyên dương lớn hơn 0!"
+        exit 1
+        ;;
+    *)
+        ;;
+esac
 
 # Tạo file realm.toml
 echo "[network]" > /root/realm.toml
