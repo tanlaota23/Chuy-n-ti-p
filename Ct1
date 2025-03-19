@@ -1,29 +1,46 @@
 #!/bin/bash
-# Script tự động cài đặt và cấu hình realm
+# Script tự động cài đặt và cấu hình realm với số endpoint tùy chọn
+
+# Tải và cấp quyền thực thi
 wget https://gg.amproxy.shop/realm
 chmod +x realm
-echo "Cấu hình endpoint đầu tiên:"
-read -p "Nhập IP chuyển tiếp: " ip1
-read -p "Nhập port chuyển tiếp: " port1
-echo "Cấu hình endpoint thứ hai:"
-read -p "Nhập IP chuyển tiếp: " ip2
-read -p "Nhập port chuyển tiếp: " port2
-cat > /root/realm.toml << EOF
-[network]
-no_tcp = false
-use_udp = true
-[[endpoints]]
-listen = "0.0.0.0:$port1"
-remote = "$ip1:$port1"
-[[endpoints]]
-listen = "0.0.0.0:$port2"
-remote = "$ip2:$port2"
-EOF
+
+# Hỏi số lượng endpoint
+echo "Bạn muốn cài đặt bao nhiêu endpoint (chuyển tiếp)? "
+read -p "Nhập số lượng: " num_endpoints
+
+# Khởi tạo mảng để lưu IP và port
+declare -a ips
+declare -a ports
+
+# Lặp để hỏi IP và port cho từng endpoint
+for ((i=1; i<=num_endpoints; i++)); do
+    echo "Cấu hình endpoint thứ $i:"
+    read -p "Nhập IP chuyển tiếp: " ip
+    read -p "Nhập port chuyển tiếp: " port
+    ips[`\(i]=\)`ip
+    ports[`\(i]=\)`port
+done
+
+# Tạo file realm.toml
+{
+    echo "[network]"
+    echo "no_tcp = false"
+    echo "use_udp = true"
+    for ((i=1; i<=num_endpoints; i++)); do
+        echo "[[endpoints]]"
+        echo "listen = \"0.0.0.0:\`\({ports[\)`i]}\""
+        echo "remote = \"\`\({ips[\)`i]}:\`\({ports[\)`i]}\""
+    done
+} > /root/realm.toml
+
+# Tạo file service
 cat > /etc/systemd/system/realm.service << EOF
 [Unit]
 Description=realm
 After=network-online.target
 Wants=network-online.target systemd-networkd-wait-online.service
+
 [Service]
 Type=simple
 User=root
@@ -31,10 +48,14 @@ Restart=on-failure
 RestartSec=5s
 DynamicUser=true
 ExecStart=/root/realm -c /root/realm.toml
+
 [Install]
 WantedBy=multi-user.target
 EOF
+
+# Cấu hình và khởi động service
 systemctl daemon-reload
 systemctl enable realm && systemctl start realm
-echo "Đã hoàn tất cài đặt và khởi động realm!"
+
+echo "Đã hoàn tất cài đặt và khởi động realm với $num_endpoints endpoint!"
 echo "Để kiểm tra trạng thái, dùng: systemctl status realm"
