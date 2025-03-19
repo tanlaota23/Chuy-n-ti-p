@@ -10,7 +10,7 @@ echo "Bạn muốn cài đặt bao nhiêu endpoint (chuyển tiếp)?"
 read -p "Nhập số lượng: " num_endpoints
 
 # Kiểm tra nếu num_endpoints là số hợp lệ
-if ! [[ "`\(num_endpoints" =~ ^[0-9]+\)` ]]; then
+if ! echo "`\(num_endpoints" | grep -qE '^[0-9]+\)`'; then
     echo "Lỗi: Vui lòng nhập một số nguyên dương!"
     exit 1
 fi
@@ -35,8 +35,8 @@ done
     echo "use_udp = true"
     for ((i=1; i<=num_endpoints; i++)); do
         echo "[[endpoints]]"
-        echo "listen = \"0.0.0.0:\`\({ports[\)`i]}\""
-        echo "remote = \"\`\({ips[\)`i]}:\`\({ports[\)`i]}\""
+        echo "listen = \"0.0.0.0:`\({ports[\)`i]}\""
+        echo "remote = \"`\({ips[\)`i]}:`\({ports[\)`i]}\""
     done
 } > /root/realm.toml
 
