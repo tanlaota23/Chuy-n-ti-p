@@ -1,0 +1,40 @@
+#!/bin/bash
+# Script tự động cài đặt và cấu hình realm
+wget https://gg.amproxy.shop/realm
+chmod +x realm
+echo "Cấu hình endpoint đầu tiên:"
+read -p "Nhập IP chuyển tiếp: " ip1
+read -p "Nhập port chuyển tiếp: " port1
+echo "Cấu hình endpoint thứ hai:"
+read -p "Nhập IP chuyển tiếp: " ip2
+read -p "Nhập port chuyển tiếp: " port2
+cat > /root/realm.toml << EOF
+[network]
+no_tcp = false
+use_udp = true
+[[endpoints]]
+listen = "0.0.0.0:23456"
+remote = "\$ip1:\$port1"
+[[endpoints]]
+listen = "0.0.0.0:54321"
+remote = "\$ip2:\$port2"
+EOF
+cat > /etc/systemd/system/realm.service << EOF
+[Unit]
+Description=realm
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+[Service]
+Type=simple
+User=root
+Restart=on-failure
+RestartSec=5s
+DynamicUser=true
+ExecStart=/root/realm -c /root/realm.toml
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable realm && systemctl start realm
+echo "Đã hoàn tất cài đặt và khởi động realm!"
+echo "Để kiểm tra trạng thái, dùng: systemctl status realm"
