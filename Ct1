@@ -15,30 +15,20 @@ if ! echo "`\(num_endpoints" | grep -qE '^[0-9]+\)`'; then
     exit 1
 fi
 
-# Khởi tạo mảng để lưu IP và port
-declare -a ips
-declare -a ports
+# Tạo file realm.toml
+echo "[network]" > /root/realm.toml
+echo "no_tcp = false" >> /root/realm.toml
+echo "use_udp = true" >> /root/realm.toml
 
 # Lặp để hỏi IP và port cho từng endpoint
-for ((i=1; i<=num_endpoints; i++)); do
+for i in $(seq 1 $num_endpoints); do
     echo "Cấu hình endpoint thứ $i:"
     read -p "Nhập IP chuyển tiếp: " ip
     read -p "Nhập port chuyển tiếp: " port
-    ips[`\(i]=\)`ip
-    ports[`\(i]=\)`port
+    echo "[[endpoints]]" >> /root/realm.toml
+    echo "listen = \"0.0.0.0:$port\"" >> /root/realm.toml
+    echo "remote = \"`\(ip:\)`port\"" >> /root/realm.toml
 done
-
-# Tạo file realm.toml
-{
-    echo "[network]"
-    echo "no_tcp = false"
-    echo "use_udp = true"
-    for ((i=1; i<=num_endpoints; i++)); do
-        echo "[[endpoints]]"
-        echo "listen = \"0.0.0.0:`\({ports[\)`i]}\""
-        echo "remote = \"`\({ips[\)`i]}:`\({ports[\)`i]}\""
-    done
-} > /root/realm.toml
 
 # Tạo file service
 cat > /etc/systemd/system/realm.service << EOF
