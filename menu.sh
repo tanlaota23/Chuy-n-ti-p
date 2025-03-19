@@ -2,16 +2,17 @@
 
 while true; do
     clear
-    echo "============================"
-    echo "       Quản lý Realm Proxy"
-    echo "============================"
+    echo "========================"
+    echo "      Quản lý Realm Proxy-tltvpn"
+    echo "========================"
     echo "1. Cài đặt chuyển tiếp"
-    echo "2. Reload dịch vụ"
-    echo "3. Bật và khởi động dịch vụ"
+    echo "2. Reload dịch vụ  systemctl daemon-reload"
+    echo "3. Bật và khởi động dịch vụ  systemctl enable realm && systemctl start realm"
     echo "4. Khởi động lại dịch vụ"
     echo "5. Kiểm tra trạng thái dịch vụ"
-    echo "0. Quay lại menu chính"
-    echo "============================"
+    echo "6. Chỉnh sửa cấu hình chuyển tiếp"
+    echo "0. Thoát"
+    echo "========================"
     read -p "Chọn một tùy chọn: " choice
 
     case "$choice" in
@@ -21,31 +22,36 @@ while true; do
             ;;
         2)
             systemctl daemon-reload
-            echo "Đã reload dịch vụ!"
+            echo "✅ Đã reload dịch vụ."
             read -p "Nhấn Enter để tiếp tục..."
             ;;
         3)
             systemctl enable realm && systemctl start realm
-            echo "Đã bật và khởi động Realm!"
+            echo "✅ Đã bật và khởi động Realm!"
             read -p "Nhấn Enter để tiếp tục..."
             ;;
         4)
             systemctl restart realm
-            echo "Đã khởi động lại Realm!"
+            echo "✅ Đã khởi động lại Realm!"
             read -p "Nhấn Enter để tiếp tục..."
             ;;
         5)
             systemctl status realm
             read -p "Nhấn Enter để tiếp tục..."
             ;;
+        6)
+            nano /root/realm.toml
+            systemctl restart realm
+            echo "✅ Đã cập nhật cấu hình và khởi động lại Realm!"
+            read -p "Nhấn Enter để tiếp tục..."
+            ;;
         0)
-            echo "Quay lại menu chính..."
-            sleep 1
-            continue
+            echo "👋 Thoát chương trình."
+            exit 0
             ;;
         *)
-            echo "Lựa chọn không hợp lệ! Vui lòng nhập lại."
-            sleep 1
+            echo "❌ Lựa chọn không hợp lệ! Vui lòng nhập lại."
+            read -p "Nhấn Enter để tiếp tục..."
             ;;
     esac
 done
