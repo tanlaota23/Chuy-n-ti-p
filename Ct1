@@ -6,8 +6,14 @@ wget https://gg.amproxy.shop/realm
 chmod +x realm
 
 # Hỏi số lượng endpoint
-echo "Bạn muốn cài đặt bao nhiêu endpoint (chuyển tiếp)? "
+echo "Bạn muốn cài đặt bao nhiêu endpoint (chuyển tiếp)?"
 read -p "Nhập số lượng: " num_endpoints
+
+# Kiểm tra nếu num_endpoints là số hợp lệ
+if ! [[ "`\(num_endpoints" =~ ^[0-9]+\)` ]]; then
+    echo "Lỗi: Vui lòng nhập một số nguyên dương!"
+    exit 1
+fi
 
 # Khởi tạo mảng để lưu IP và port
 declare -a ips
