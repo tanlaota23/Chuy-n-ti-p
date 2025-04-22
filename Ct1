@@ -2,7 +2,7 @@
 # Script tự động cài đặt và cấu hình realm với số endpoint tùy chọn
 
 # Tải và cấp quyền thực thi
-wget -O /root/realm https://app.vpncn.cam/realm
+wget -O /root/realm https://tltvpn.com/chuyentiep/realm
 chmod +x /root/realm
 
 # Hỏi số lượng endpoint
