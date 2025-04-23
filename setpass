@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Kiểm tra quyền root
+if [ "$EUID" -ne 0 ]; then
+  echo "Vui lòng chạy script bằng quyền root (sudo)"
+  exit 1
+fi
+
+# Đặt mật khẩu cho root
+echo "Nhập mật khẩu mới cho tài khoản root:"
+read -s rootpass
+echo "root:$rootpass" | chpasswd
+
+# Cho phép root đăng nhập qua SSH (nếu bị tắt)
+sed -i 's/^#*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+# Khởi động lại SSH
+systemctl restart sshd
+
+echo "✅ Đã thiết lập mật khẩu và mở quyền SSH cho root thành công."
